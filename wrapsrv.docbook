@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook V4.5//EN"
+"file:///usr/share/xml/docbook/schema/dtd/4.5/docbookx.dtd">
+
+<refentry>
+  <refmeta>
+    <refentrytitle>wrapsrv</refentrytitle>
+    <manvolnum>1</manvolnum>
+  </refmeta>
+  
+  <refnamediv>
+    <refname>wrapsrv</refname>
+    <refpurpose>DNS SRV record command line wrapper</refpurpose>
+  </refnamediv>
+
+  <refsynopsisdiv>
+    <cmdsynopsis>
+      <command>wrapsrv</command>
+      <arg><replaceable class="parameter">SRVNAME</replaceable></arg>
+      <arg><replaceable class="parameter">COMMAND</replaceable></arg>
+      <arg rep="repeat"><replaceable class="parameter">OPTION</replaceable></arg>
+    </cmdsynopsis>
+  </refsynopsisdiv>
+
+  <refsect1>
+    <title>DESCRIPTION</title>
+    
+    <para><command>wrapsrv</command> adds support for connecting to a
+    network service based on DNS SRV record lookups to commands that
+    do not support the DNS SRV record. <command>wrapsrv</command>
+    implements the weighted priority client connection algorithm in
+    RFC 2782. The specified command line will be invoked one or more
+    times with <replaceable>%h</replaceable> and
+    <replaceable>%p</replaceable> sequences in the command line
+    substituted for the hostname and port elements of the selected SRV
+    record. The command line invoked must exit and return 0 after a
+    successful connection or exit and return non-zero if the
+    connection fails. <command>wrapsrv</command> will itself exit with
+    the return code of the last command line invocation, or it may
+    exit with a non-zero return code if the DNS SRV record lookup
+    fails for any reason.
+    </para>
+
+  </refsect1>
+  
+</refentry>
