@@ -1,0 +1,36 @@
+'\" -*- coding: us-ascii -*-
+.if \n(.g .ds T< \\FC
+.if \n(.g .ds T> \\F[\n[.fam]]
+.de URL
+\\$2 \(la\\$1\(ra\\$3
+..
+.if \n(.g .mso www.tmac
+.TH wrapsrv 1 "26 June 2009" "" ""
+.SH NAME
+wrapsrv \- DNS SRV record command line wrapper
+.SH SYNOPSIS
+'nh
+.fi
+.ad l
+\fBwrapsrv\fR \kx
+.if (\nx>(\n(.l/2)) .nr x (\n(.l/5)
+'in \n(.iu+\nxu
+[\fISRVNAME\fR] [\fICOMMAND\fR] [\fIOPTION\fR]\&...
+'in \n(.iu-\nxu
+.ad b
+'hy
+.SH DESCRIPTION
+\fBwrapsrv\fR adds support for connecting to a
+network service based on DNS SRV record lookups to commands that
+do not support the DNS SRV record. \fBwrapsrv\fR
+implements the weighted priority client connection algorithm in
+RFC 2782. The specified command line will be invoked one or more
+times with \fI%h\fR and
+\fI%p\fR sequences in the command line
+substituted for the hostname and port elements of the selected SRV
+record. The command line invoked must exit and return 0 after a
+successful connection or exit and return non-zero if the
+connection fails. \fBwrapsrv\fR will itself exit with
+the return code of the last command line invocation, or it may
+exit with a non-zero return code if the DNS SRV record lookup
+fails for any reason.
