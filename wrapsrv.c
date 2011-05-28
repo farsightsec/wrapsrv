@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009 by Internet Systems Consortium, Inc. ("ISC")
+ * Copyright (c) 2009, 2011 by Internet Systems Consortium, Inc. ("ISC")
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -31,29 +31,29 @@
 #include <string.h>
 #include <time.h>
 
-#include <isc/list.h>
+#include "list.h"
 
 /* Data types. */
 
 struct srv {
-	LINK(struct srv)	link;
-	char			*tname;
-	uint16_t		weight;
-	uint16_t		port;
+	ISC_LINK(struct srv)		link;
+	char				*tname;
+	uint16_t			weight;
+	uint16_t			port;
 };
 
 struct srv_prio {
-	LINK(struct srv_prio)	link;
-	LIST(struct srv)	srv_list;
-	uint16_t		prio;
+	ISC_LINK(struct srv_prio)	link;
+	ISC_LIST(struct srv)		srv_list;
+	uint16_t			prio;
 };
 
-typedef LIST(struct srv)	srv_list;
-typedef LIST(struct srv_prio)	srv_prio_list;
+typedef ISC_LIST(struct srv)		srv_list;
+typedef ISC_LIST(struct srv_prio)	srv_prio_list;
 
 /* Globals. */
 
-static srv_prio_list prio_list;
+static srv_prio_list			prio_list;
 
 /* Forward. */
 
@@ -80,33 +80,33 @@ next_tuple(void) {
 	unsigned csum = 0;
 	unsigned wsum = 0;
 
-	pe = HEAD(prio_list);
+	pe = ISC_LIST_HEAD(prio_list);
 	if (pe == NULL)
 		return (NULL);
 
-	for (se = HEAD(pe->srv_list);
+	for (se = ISC_LIST_HEAD(pe->srv_list);
 	     se != NULL;
-	     se = NEXT(se, link))
+	     se = ISC_LIST_NEXT(se, link))
 	{
 		wsum += se->weight;
 	}
 
 	rnd = random() % (wsum + 1);
 
-	for (se = HEAD(pe->srv_list);
+	for (se = ISC_LIST_HEAD(pe->srv_list);
 	     se != NULL;
-	     se = NEXT(se, link))
+	     se = ISC_LIST_NEXT(se, link))
 	{
 		csum += se->weight;
 
 		if (csum >= rnd) {
-			UNLINK(pe->srv_list, se, link);
+			ISC_LIST_UNLINK(pe->srv_list, se, link);
 			break;
 		}
 	}
 
 	if (se == NULL) {
-		UNLINK(prio_list, pe, link);
+		ISC_LIST_UNLINK(prio_list, pe, link);
 		free(pe);
 		return (next_tuple());
 	}
@@ -124,15 +124,15 @@ free_tuples(void) {
 	struct srv_prio *pe, *pe_next;
 	struct srv *se, *se_next;
 
-	pe = HEAD(prio_list);
+	pe = ISC_LIST_HEAD(prio_list);
 	while (pe != NULL) {
-		pe_next = NEXT(pe, link);
-		UNLINK(prio_list, pe, link);
+		pe_next = ISC_LIST_NEXT(pe, link);
+		ISC_LIST_UNLINK(prio_list, pe, link);
 
-		se = HEAD(pe->srv_list);
+		se = ISC_LIST_HEAD(pe->srv_list);
 		while (se != NULL) {
-			se_next = NEXT(se, link);
-			UNLINK(pe->srv_list, se, link);
+			se_next = ISC_LIST_NEXT(se, link);
+			ISC_LIST_UNLINK(pe->srv_list, se, link);
 			free(se->tname);
 			free(se);
 			se = se_next;
@@ -148,9 +148,9 @@ insert_tuple(char *tname, uint16_t prio, uint16_t weight, uint16_t port) {
 	struct srv_prio *pe;
 	struct srv *se;
 
-	for (pe = HEAD(prio_list);
+	for (pe = ISC_LIST_HEAD(prio_list);
 	     pe != NULL;
-	     pe = NEXT(pe, link))
+	     pe = ISC_LIST_NEXT(pe, link))
 	{
 		if (pe->prio == prio)
 			break;
@@ -162,35 +162,35 @@ insert_tuple(char *tname, uint16_t prio, uint16_t weight, uint16_t port) {
 		pe = malloc(sizeof(*pe));
 		assert(pe != NULL);
 
-		INIT_LINK(pe, link);
-		INIT_LIST(pe->srv_list);
+		ISC_LINK_INIT(pe, link);
+		ISC_LIST_INIT(pe->srv_list);
 		pe->prio = prio;
 
-		for (piter = HEAD(prio_list);
+		for (piter = ISC_LIST_HEAD(prio_list);
 		     piter != NULL;
-		     piter = NEXT(piter, link))
+		     piter = ISC_LIST_NEXT(piter, link))
 		{
 			assert(piter->prio != prio);
 
 			if (piter->prio > prio) {
-				INSERT_BEFORE(prio_list, piter, pe, link);
+				ISC_LIST_INSERTBEFORE(prio_list, piter, pe, link);
 				break;
 			}
 		}
 
 		if (piter == NULL)
-			APPEND(prio_list, pe, link);
+			ISC_LIST_APPEND(prio_list, pe, link);
 	}
 
 	se = malloc(sizeof(*se));
 	assert(se != NULL);
 
-	INIT_LINK(se, link);
+	ISC_LINK_INIT(se, link);
 	se->tname = tname;
 	se->weight = weight;
 	se->port = port;
 
-	APPEND(pe->srv_list, se, link);
+	ISC_LIST_APPEND(pe->srv_list, se, link);
 }
 
 #ifdef DEBUG
@@ -199,14 +199,14 @@ print_tuples(void) {
 	struct srv_prio *pe;
 	struct srv *se;
 
-	for (pe = HEAD(prio_list);
+	for (pe = ISC_LIST_HEAD(prio_list);
 	     pe != NULL;
-	     pe = NEXT(pe, link))
+	     pe = ISC_LIST_NEXT(pe, link))
 	{
 		fprintf(stderr, "prio=%hu\n", pe->prio);
-		for (se = HEAD(pe->srv_list);
+		for (se = ISC_LIST_HEAD(pe->srv_list);
 		     se != NULL;
-		     se = NEXT(se, link))
+		     se = ISC_LIST_NEXT(se, link))
 		{
 			fprintf(stderr, "\tweight=%hu port=%hu tname=%s\n",
 				se->weight, se->port, se->tname);
@@ -362,7 +362,7 @@ main(int argc, char **argv) {
 	if (argc < 3)
 		usage();
 
-	INIT_LIST(prio_list);
+	ISC_LIST_INIT(prio_list);
 
 	srandom(time(NULL));
 
