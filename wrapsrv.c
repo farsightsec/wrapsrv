@@ -33,6 +33,10 @@
 
 #include "list.h"
 
+#ifndef NS_MAXMSG
+#define NS_MAXMSG 65535
+#endif
+
 /* Data types. */
 
 struct srv {
