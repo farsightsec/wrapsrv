@@ -1,8 +1,8 @@
 CC = gcc
 CFLAGS = -O2 -g
 WARN = -Wall -Wextra -Werror
-INCLUDE = -I/usr/include/bind -I/usr/local/include/bind
-LDFLAGS = -L/usr/local/lib -lbind
+INCLUDE =
+LDFLAGS = -lresolv
 DESTDIR = /usr/local
 
 BIN = wrapsrv
