@@ -1,6 +1,6 @@
 CC = gcc
-CFLAGS = -O2 -g
 WARN = -Wall -Wextra -Werror
+CFLAGS = -O2 -g $(WARN)
 INCLUDE =
 LDFLAGS = -lresolv
 DESTDIR = /usr/local
@@ -12,7 +12,7 @@ SRC = wrapsrv.c
 all: $(BIN) $(DOC)
 
 $(BIN): $(SRC)
-	$(CC) $(CFLAGS) $(WARN) -o $@ $(SRC) $(INCLUDE) $(LDFLAGS)
+	$(CC) $(CFLAGS) -o $@ $(SRC) $(INCLUDE) $(LDFLAGS)
 
 $(DOC): wrapsrv.docbook
 	docbook2x-man $<
