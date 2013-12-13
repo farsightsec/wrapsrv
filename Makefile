@@ -3,7 +3,8 @@ WARN = -Wall -Wextra -Werror
 CFLAGS = -O2 -g $(WARN)
 INCLUDE =
 LDFLAGS = -lresolv
-DESTDIR = /usr/local
+DESTDIR ?=
+PREFIX = /usr/local
 
 BIN = wrapsrv
 DOC = wrapsrv.1
@@ -21,6 +22,6 @@ clean:
 	rm -f $(BIN)
 
 install: $(BIN)
-	install -m 0755 $(BIN) $(DESTDIR)/bin
+	install -m 0755 $(BIN) $(DESTDIR)$(PREFIX)/bin
 
 .PHONY: all clean install
