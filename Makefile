@@ -25,6 +25,8 @@ clean:
 	rm -f $(BIN)
 
 install: $(BIN)
+	mkdir -p $(BINDIR)
+	mkdir -p $(MANDIR)
 	install -m 0755 $(BIN) $(BINDIR)
 	install -m 0644 $(MAN) $(MANDIR)
 
