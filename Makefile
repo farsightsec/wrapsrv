@@ -6,8 +6,11 @@ LDFLAGS = -lresolv
 DESTDIR ?=
 PREFIX = /usr/local
 
+BINDIR ?= $(DESTDIR)$(PREFIX)/bin
+MANDIR ?= $(DESTDIR)$(PREFIX)/share/man/man1
+
 BIN = wrapsrv
-DOC = wrapsrv.1
+MAN = wrapsrv.1
 SRC = wrapsrv.c
 
 all: $(BIN) $(DOC)
@@ -15,13 +18,14 @@ all: $(BIN) $(DOC)
 $(BIN): $(SRC)
 	$(CC) $(CFLAGS) -o $@ $(SRC) $(INCLUDE) $(LDFLAGS)
 
-$(DOC): wrapsrv.docbook
+$(MAN): wrapsrv.docbook
 	docbook2x-man $<
 
 clean:
 	rm -f $(BIN)
 
 install: $(BIN)
-	install -m 0755 $(BIN) $(DESTDIR)$(PREFIX)/bin
+	install -m 0755 $(BIN) $(BINDIR)
+	install -m 0644 $(MAN) $(MANDIR)
 
 .PHONY: all clean install
