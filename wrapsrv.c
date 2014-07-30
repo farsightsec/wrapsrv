@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2011 by Farsight Security, Inc.
+ * Copyright (c) 2009, 2011, 2014 by Farsight Security, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@
 #include <resolv.h>
 #include <netdb.h>
 
+#include <sys/time.h>
 #include <sys/wait.h>
 #include <assert.h>
 #include <stdint.h>
@@ -30,6 +31,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <unistd.h>
 
 #include "list.h"
 
@@ -362,13 +364,20 @@ main(int argc, char **argv) {
 	unsigned char answer[NS_MAXMSG];
 	unsigned rcode;
 	struct srv *se;
+	struct timeval tv;
+	unsigned int seed = 0;
 
 	if (argc < 3)
 		usage();
 
 	ISC_LIST_INIT(prio_list);
 
-	srandom(time(NULL));
+	gettimeofday(&tv, NULL);
+
+	seed ^= (unsigned int) tv.tv_usec;
+	seed ^= (unsigned int) getpid();
+
+	srandom(seed);
 
 	res_init();
 
